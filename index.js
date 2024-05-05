@@ -5,6 +5,7 @@ const mySQLStore = require('express-mysql-session')(session);
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
+
 var db = require('./lib/db');
 
 
@@ -14,6 +15,7 @@ app.use(cors({
 }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
+app.use('/resources', express.static('resources')) // 서버 내 이미지 저장을 위함 및 업로드 위함
 
 var sessionStore = new mySQLStore({
   host: '127.0.0.1',
@@ -56,7 +58,7 @@ app.get('/users', function (req, res) {
 
 
 /** 로그인 */
-app.post('/login-process', function (request, response) {
+app.post('/login', function (request, response) {
   var email = request.body.email;
   var pwd = request.body.pwd;
   console.log(email, pwd);
@@ -86,6 +88,7 @@ app.post('/login-process', function (request, response) {
   }
 });
 
+/** 로그아웃 */
 app.get('/logout', function (request, response) {
 
   if(request.session.is_logined) {
@@ -99,8 +102,27 @@ app.get('/logout', function (request, response) {
  
 });
 
-app.get('/signup', function(req,res) {
-  res.send('회원가입');
+/** 회원가입 */
+app.post('/register', function(req,res) {
+  var email = req.body.email;
+  var name = req.body.name;
+  var pwd = req.body.pwd;
+  var route = req.body.route ? req.body.route : 'http://localhost:3000/resources/user.png';
+
+  db.query('select * from users where email=?',[email],(err,data)=>{
+    if(data.length == 0){
+        console.log('중복된 email 없음, 회원가입 성공');
+        db.query('insert into users(email, name, pwd, route) values(?,?,?,?)',[
+            email, name, pwd, route
+        ]);
+        res.status(200).send(`${email} 회원가입 성공`)
+    }else{
+        console.log('회원가입 실패');
+        res.status(400).send('회원가입 실패')
+    }
+});
+
+
 })
 
 
