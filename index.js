@@ -1,7 +1,7 @@
 const express = require('express')
 const session = require('express-session');
 const mySQLStore = require('express-mysql-session')(session);
-const FileStore = require('session-file-store');
+//const FileStore = require('session-file-store');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
@@ -40,41 +40,63 @@ app.get('/users', function (req, res) {
 })
 
 
-app.get('/',function (req,res) {
-  res.send('hello');
-})
+// 메인페이지
+/* app.get('/',(req,res)=>{
+
+  if (req.session.is_logined == true){
+    res.send("이미 로그인 되어 있습니다");
+    res.status(200).send({
+      is_logined : req.session.is_logined,
+      email : req.session.email
+  });
+  } else {
+      res.redirect('/login-process');
+  }
+}); */
 
 
 /** 로그인 */
-app.post('/login', function (request, response) {
+app.post('/login-process', function (request, response) {
   var email = request.body.email;
-  var password = request.body.pwd;
-  console.log(email, password);
-  if (email && password) {             // id와 pw가 입력되었는지 확인
+  var pwd = request.body.pwd;
+  console.log(email, pwd);
+
+  if (email && pwd) {             // id와 pw가 입력되었는지 확인
       
-      db.query('SELECT pwd FROM USERS WHERE email = ?', [email], function(error, results, fields) {
+      db.query('SELECT * FROM USERS WHERE email = ? AND pwd = ? ', [email,pwd], function(error, results, fields) {
           if (error) throw error;
-          if (results.length > 0) {       // db에서의 반환값이 있으면 로그인 성공
+          if (results.length > 0) {  
+            console.log(results);     // db에서의 반환값이 있으면 로그인 성공
               request.session.is_logined = true;      // 세션 정보 갱신
               request.session.email = email;
               request.session.save(function () {
-                  response.redirect('/');
+                  response.status(200).send({
+                    email: request.session.email,
+                    is_logined: request.session.is_logined
+                  })
               });
           } else {              
-            response.send('일치하는 회원 정보가 존재하지 않는다');
+            response.status(400).send("일치하는 계정 정보가 없습니다");
           }            
       });
 
   } 
   else {
-      response.send('계정이 없습니다'); 
+      response.status(400).send("No data");
   }
 });
 
 app.get('/logout', function (request, response) {
-  request.session.destroy(function (err) {
-      response.redirect('/');
-  });
+
+  if(request.session.is_logined) {
+    request.session.destroy(function(err) {
+      response.status(200).send('logout');
+    });
+  }
+  else {
+    response.status(400).send('잘못된 접근입니다');
+  }
+ 
 });
 
 app.get('/signup', function(req,res) {
