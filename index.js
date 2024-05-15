@@ -68,7 +68,7 @@ app.post('/login', function (request, response) {
 
   if (email && pwd) {             // id와 pw가 입력되었는지 확인
       
-      db.query('SELECT * FROM USERS WHERE email = ? AND pwd = ? ', [email,pwd], function(error, results, fields) {
+      db.query('SELECT * FROM USER WHERE email = ? AND pwd = ? ', [email,pwd], function(error, results, fields) {
           if (error) throw error;
           if (results.length > 0) {  
                // db에서의 반환값이 있으면 로그인 성공
@@ -110,13 +110,13 @@ app.post('/register', function(req,res) {
   var email = req.body.email;
   var name = req.body.name;
   var pwd = req.body.pwd;
-  var route = req.body.route !== '' ? `${baseUrl}/${req.body.route}` : `${baseUrl}/resources/user.png`;
+  var route = req.body.route !== null ? `${baseUrl}/${req.body.route}` : `${baseUrl}/resources/user.png`;
 
-  db.query('select * from users where email=?',[email],(err,data)=>{
+  db.query('select * from user where email=?',[email],(err,data)=>{
     if(data.length == 0){
         console.log('중복된 email 없음, 회원가입 성공');
         multer({})
-        db.query('insert into users(email, name, pwd, route) values(?,?,?,?)',[
+        db.query('insert into user(email, name, pwd, route) values(?,?,?,?)',[
             email, name, pwd, route
         ]);
         res.status(200).send(`${email} 회원가입 성공`)

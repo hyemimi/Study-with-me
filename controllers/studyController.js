@@ -3,7 +3,7 @@ const getUserStudies = async (req, res) => {
     try {
 
     } catch (error) {
-        res.send("error.message");
+        res.send(error.message);
     }
 }
 
@@ -12,7 +12,7 @@ const addStudies = async (req, res) => {
     try {
 
     } catch (error) {
-        res.send("error.message");
+        res.send(error.message);
     }
 }
 
