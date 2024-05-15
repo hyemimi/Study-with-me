@@ -1,16 +1,19 @@
 const express = require('express')
 const session = require('express-session');
 const mySQLStore = require('express-mysql-session')(session);
+const router = express.Router();
 //const FileStore = require('session-file-store');
 const bodyParser = require('body-parser');
+const baseUrl = 'http://localhost:3000';
 const cors = require('cors');
 const app = express();
-
+var multer = require('multer');
+var resources = multer({ dest: '/resources' })
 var db = require('./lib/db');
 
 
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: baseUrl,
   credentials: true,
 }));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -33,13 +36,13 @@ app.use(session({
 
 
 // 
-app.get('/users', function (req, res) {
+/* app.get('/users', function (req, res) {
   db.query('select * from users', function(err,results,fields) {
     if (err) throw err;
     console.log(results);
     res.send(results);
   })
-})
+}) */
 
 
 // 메인페이지
@@ -68,13 +71,13 @@ app.post('/login', function (request, response) {
       db.query('SELECT * FROM USERS WHERE email = ? AND pwd = ? ', [email,pwd], function(error, results, fields) {
           if (error) throw error;
           if (results.length > 0) {  
-            console.log(results);     // db에서의 반환값이 있으면 로그인 성공
+               // db에서의 반환값이 있으면 로그인 성공
               request.session.is_logined = true;      // 세션 정보 갱신
               request.session.email = email;
               request.session.save(function () {
                   response.status(200).send({
-                    email: request.session.email,
-                    is_logined: request.session.is_logined
+                    email: results[0].email,
+                    route: results[0].route
                   })
               });
           } else {              
@@ -107,11 +110,12 @@ app.post('/register', function(req,res) {
   var email = req.body.email;
   var name = req.body.name;
   var pwd = req.body.pwd;
-  var route = req.body.route ? req.body.route : 'http://localhost:3000/resources/user.png';
+  var route = req.body.route !== '' ? `${baseUrl}/${req.body.route}` : `${baseUrl}/resources/user.png`;
 
   db.query('select * from users where email=?',[email],(err,data)=>{
     if(data.length == 0){
         console.log('중복된 email 없음, 회원가입 성공');
+        multer({})
         db.query('insert into users(email, name, pwd, route) values(?,?,?,?)',[
             email, name, pwd, route
         ]);
@@ -124,6 +128,13 @@ app.post('/register', function(req,res) {
 
 
 })
+
+
+
+/** Study with me service */
+app.use('/study', require("./routes/studyRoutes"));
+
+
 
 
 app.listen(3000)
