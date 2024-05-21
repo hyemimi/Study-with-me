@@ -38,13 +38,16 @@ const addStudies = async (request, response) => {
     }
 }
 
+
 /** 멤버 목록 조회 */
 const getMembers = async (request, response) => {
+    var invite_code = request.body.invite_code;
+
     try {
-        db.query('SELECT ', [invite_code,leader_id,description, title, banner,location,time], function(error, results, fields) {
+        db.query('SELECT user_id, email, name, route FROM (member m JOIN study s ON m.invite_code = s.invite_code) NATURAL JOIN user u WHERE s.invite_code= (?)', [invite_code], function(error, results, fields) {
                if (error) throw error;
                else {              
-                 response.status(200).send(results.invite_code);
+                 response.status(200).send(results);
                }           
            });
        } catch (error) {
@@ -55,4 +58,4 @@ const getMembers = async (request, response) => {
 
 
 
-module.exports= {getStudies, addStudies}
+module.exports= {getStudies, addStudies, getMembers}
