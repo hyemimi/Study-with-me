@@ -15,7 +15,7 @@ const getStudies = async (req, res) => {
             }
         })
     } catch (error) {
-        res.send(error.message);
+        res.status(400).send(error.message);
     }
 }
 
@@ -34,7 +34,7 @@ const addStudies = async (request, response) => {
             }           
         });
     } catch (error) {
-        response.send(error.message);
+        response.status(400).send(error.message);
     }
 }
 
@@ -51,7 +51,7 @@ const getMembers = async (request, response) => {
                }           
            });
        } catch (error) {
-           response.send(error.message);
+           response.status(400).send(error.message);
        }
 }
 
