@@ -18,5 +18,20 @@ const uploadContent = async (req, res) => {
 }
 
 /** 게시글 불러오기 */
+const getBoard = async (req,res) => {
+    var invite_code = req.body.invite_code;
 
-module.exports = {uploadContent}
+    try {
+        db.query('SELECT * FROM board WHERE invite_code= (?)',[invite_code],function(error,results,fields) {
+            if (error) throw error;
+            else {
+                res.status(200).send(results);
+            }
+        })
+
+    } catch (error) {
+
+    }
+}
+
+module.exports = {uploadContent, getBoard}
