@@ -62,7 +62,25 @@ const getMembers = async (request, response) => {
 
 
 /** 알람 조회 */
+const getNotification = async (request, response) => {
+    var user_id = request.body.user_id;
 
+    try {
+        db.query('SELECT user_id FROM notify WHERE user_id = (?)', [user_id], function(error, results, fields) {
+               if (error) throw error;
+               if (results.length > 0) {
+                // 알람 존재
+                response.status(200).send(results);
+               }
+               else {      
+                // 알람 없음        
+                 response.status(200).send("알람 없음");
+               }           
+           });
+       } catch (error) {
+           response.status(400).send(error.message);
+       }
+}
 
 /** 유저를 스터디에 등록 */
 const addStudyUser = async (request, response) => {
@@ -96,4 +114,4 @@ const addStudyUser = async (request, response) => {
 
 
 
-module.exports= {getStudies, addStudies, getMembers, addStudyUser}
+module.exports= {getStudies, addStudies, getMembers, addStudyUser, getNotification}
