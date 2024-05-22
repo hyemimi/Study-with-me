@@ -55,7 +55,45 @@ const getMembers = async (request, response) => {
        }
 }
 
+/** 스터디 유저 추가 요청 (알람 보내기) */
+
+
+/** 유저에게 알람 송신 */
+
+
+/** 알람 조회 */
+
+
+/** 유저를 스터디에 등록 */
+const addStudyUser = async (request, response) => {
+    
+    const {user_id,invite_code} = request.body;
+
+    
+    try {
+        db.query('SELECT * FROM member WHERE invite_code = (?) and user_id = (?)', [invite_code,user_id],
+        function(error, results, fields) {
+            if (error) throw error;
+            if (results.length === 0) {
+                db.query('INSERT INTO member (invite_code,user_id) VALUES (?,?)', [invite_code,user_id], function(error, results, fields) {
+                    if (error) throw error;
+                    else {              
+                      response.status(200).send("스터디 가입 성공");
+                    }           
+                });
+            }
+            if (results.length === 1) {
+                response.status(400).send("이미 가입된 유저입니다");
+            }
+        })
+   
+    } catch (error) {
+        response.status(400).send(error.message);
+    }
+}
 
 
 
-module.exports= {getStudies, addStudies, getMembers}
+
+
+module.exports= {getStudies, addStudies, getMembers, addStudyUser}
