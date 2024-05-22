@@ -66,7 +66,7 @@ const getNotification = async (request, response) => {
     var user_id = request.body.user_id;
 
     try {
-        db.query('SELECT user_id FROM notify WHERE user_id = (?)', [user_id], function(error, results, fields) {
+        db.query('SELECT * FROM notify WHERE user_id = (?)', [user_id], function(error, results, fields) {
                if (error) throw error;
                if (results.length > 0) {
                 // 알람 존재
