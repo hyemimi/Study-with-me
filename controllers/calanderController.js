@@ -4,12 +4,12 @@ var db = require('./../lib/db');
 /** 스터디 장이 스터디 일정 및 장소를 등록합니다 */
 const registerSchedule = async (request, response) => {
     
-    const {user_id,invite_code, during, location} = request.body;
-    var time = request.body.time; // 배열로 받기.
+    const value = request.body; // invite_code, time, during, location 들어가 있음
+    //var time = request.body.time; // 배열로 받기.
 
     try {
          // 그리고 반복문으로 insert query
-     db.query('INSERT INTO schedule (user_id,invite_code,time, during, location) VALUES (?,?,?,?,?)', [user_id,invite_code,time, during,location], function(error, results, fields) {
+     db.query('INSERT INTO schedule (invite_code,time, during, location) VALUES ?', [value], function(error, results, fields) {
             if (error) throw error;
             else {              
               response.status(200).send("스케줄 등록 성공");
