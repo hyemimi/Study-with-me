@@ -2,16 +2,22 @@ const express = require('express');
 const router = express.Router();
 const { getStudies, addStudies, getMembers, addStudyUser, getNotification, sendNotification } = require("../controllers/studyController");
 const { uploadContent, getBoard } = require("../controllers/boardController");
+const { registerSchedule, voteSchedule, getSchedule } = require('../controllers/calanderController');
 
+/** studyController */
 router.route("/getStudies").get(getStudies); // 유저의 스터디 목록들 조회
 router.route("/add").post(addStudies); // 스터디 생성
 router.route("/getMembers").get(getMembers); // 스터디의 구성원 조회
 router.route("/addStudyUser").post(addStudyUser); // 스터디 유저 등록
-router.route("/sendNotification").post(sendNotification);
+router.route("/sendNotification").post(sendNotification); // 스터디 초대 알람 전송
 router.route("/getNotification").get(getNotification); // 알람 조회
+/** boardController */
 router.route("/uploadContent").post(uploadContent); // 게시글 업로드
 router.route("/getBoard").get(getBoard); // 게시글 조회
-//router.route("/getStudy")
+/** calanderController */
+router.route("/registerSchedule").post(registerSchedule);
+router.route("/voteSchedule").post(voteSchedule);
+router.route("/getSchedule").get(getSchedule);
 
 module.exports = router;
 
