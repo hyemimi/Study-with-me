@@ -56,9 +56,40 @@ const getMembers = async (request, response) => {
 }
 
 /** 스터디 유저 추가 요청 (알람 보내기) */
+const sendNotification = async (request, response) => {
+    
+    const {user_id, content} = request.body;
 
+    
+    try {
+     db.query('INSERT INTO notify (user_id, content, isChecked) VALUES (?,?,?)', [user_id,content,false], function(error, results, fields) {
+            if (error) throw error;
+            else {              
+              response.status(200).send("알람 송신");
+            }           
+        });
+    } catch (error) {
+        response.status(400).send(error.message);
+    }
+}
 
-/** 유저에게 알람 송신 */
+/** 스터디 가입 요청 수락 */
+/* const joinStudy = async (request, response) => {
+    const {user_id, notify_id, content} = request.body;
+     
+    try {
+        db.query('UPDATE notify SET isChecked=(?) WHERE notify_id = (?)', [true, notify_id], function(error, results, fields) {
+               if (error) throw error;
+               else {              
+                 response.status(200).send("알람 송신");
+               }           
+           });
+       } catch (error) {
+           response.status(400).send(error.message);
+       }
+
+} */
+
 
 
 /** 알람 조회 */
@@ -66,7 +97,7 @@ const getNotification = async (request, response) => {
     var user_id = request.body.user_id;
 
     try {
-        db.query('SELECT * FROM notify WHERE user_id = (?)', [user_id], function(error, results, fields) {
+        db.query('SELECT * FROM notify WHERE user_id = (?) and isChecked = (?)', [user_id,false], function(error, results, fields) {
                if (error) throw error;
                if (results.length > 0) {
                 // 알람 존재
@@ -82,10 +113,10 @@ const getNotification = async (request, response) => {
        }
 }
 
-/** 유저를 스터디에 등록 */
+/** 알람 확인 시 유저를 스터디에 등록 */
 const addStudyUser = async (request, response) => {
     
-    const {user_id,invite_code} = request.body;
+    const {user_id, invite_code, notify_id} = request.body;
 
     
     try {
@@ -93,10 +124,14 @@ const addStudyUser = async (request, response) => {
         function(error, results, fields) {
             if (error) throw error;
             if (results.length === 0) {
+              
                 db.query('INSERT INTO member (invite_code,user_id) VALUES (?,?)', [invite_code,user_id], function(error, results, fields) {
                     if (error) throw error;
-                    else {              
-                      response.status(200).send("스터디 가입 성공");
+                    else {      
+                        db.query('UPDATE notify SET isChecked=(?) WHERE notify_id = (?)', [true, notify_id], function(error, results,fields) {
+                            if (error) throw error;
+                        })        
+                      response.status(200).send("스터디 가입 성공, 알림 확인 처리");
                     }           
                 });
             }
@@ -114,4 +149,4 @@ const addStudyUser = async (request, response) => {
 
 
 
-module.exports= {getStudies, addStudies, getMembers, addStudyUser, getNotification}
+module.exports= {getStudies, addStudies, getMembers, addStudyUser, getNotification, sendNotification}
