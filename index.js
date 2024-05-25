@@ -7,9 +7,27 @@ const bodyParser = require('body-parser');
 const baseUrl = 'http://localhost:3000';
 const cors = require('cors');
 const app = express();
-var multer = require('multer');
-var resources = multer({ dest: '/resources' })
 var db = require('./lib/db');
+
+
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
+
+
+const upload = multer({
+    storage: multer.diskStorage({
+        destination(req, file, cb) {
+            cb(null, 'resources/banner');
+        },
+        filename(req, file, cb) {
+            const ext = path.extname(file.originalname);
+            cb(null, path.basename(file.originalname, ext) + Date.now() + ext);
+        },
+    }),
+    limits: { fileSize: 5 * 1024 * 1024 },
+})
+
 
 
 app.use(cors({
@@ -18,7 +36,8 @@ app.use(cors({
 }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
-app.use('/resources', express.static('resources')) // 서버 내 이미지 저장을 위함 및 업로드 위함
+
+app.use('resources', express.static('resources')) // 서버 내 이미지 저장을 위함 및 업로드 위함
 
 var sessionStore = new mySQLStore({
   host: '127.0.0.1',
@@ -77,7 +96,9 @@ app.post('/login', function (request, response) {
               request.session.save(function () {
                   response.status(200).send({
                     email: results[0].email,
-                    route: results[0].route
+                    route: results[0].route,
+                    name: results[0].name,
+                    user_id: results[0].user_id
                   })
               });
           } else {              
@@ -110,7 +131,7 @@ app.post('/register', function(req,res) {
   var email = req.body.email;
   var name = req.body.name;
   var pwd = req.body.pwd;
-  var route = req.body.route !== null ? `${baseUrl}/${req.body.route}` : `${baseUrl}/resources/user.png`;
+  var route = req.body.route !== null ? `${baseUrl}/resources/${req.body.route}` : `${baseUrl}/resources/user.png`;
 
   db.query('select * from user where email=?',[email],(err,data)=>{
     if(data.length == 0){
@@ -133,6 +154,27 @@ app.post('/register', function(req,res) {
 
 /** Study with me service */
 app.use('/study', require("./routes/studyRoutes"));
+
+
+/** 이미지 업로드 (db, server) */
+app.post('/banner', upload.single('image'), (req, res, next) => {
+
+  
+console.log(req.body);
+  try {
+    db.query('UPDATE study set banner=(?) where invite_code = (?)',[req.file.filename,req.body.invite_code], function(error,results,fields) {
+        if (error) throw error;
+        else {
+
+            res.status(200).send("파일 업로드 완료")
+        }
+    })
+} catch (error) {
+    res.status(400).send(error.message);
+}
+
+  
+});
 
 
 

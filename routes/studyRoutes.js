@@ -6,7 +6,7 @@ const { registerSchedule, voteSchedule, getSchedule } = require('../controllers/
 
 /** studyController */
 router.route("/getStudies").get(getStudies); // 유저의 스터디 목록들 조회
-router.route("/add").post(addStudies); // 스터디 생성
+router.route("/addStudies").post(addStudies); // 스터디 생성
 router.route("/getMembers").get(getMembers); // 스터디의 구성원 조회
 router.route("/addStudyUser").post(addStudyUser); // 스터디 유저 등록
 router.route("/sendNotification").post(sendNotification); // 스터디 초대 알람 전송

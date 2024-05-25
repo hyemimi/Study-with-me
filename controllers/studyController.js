@@ -1,5 +1,9 @@
 const { v4: uuidv4 } = require('uuid');
 var db = require('./../lib/db');
+var multer = require('multer');
+var resources = multer({ dest: '/resources' })
+
+
 
 
 /** 유저의 스터디 목록 조회  */
@@ -23,20 +27,23 @@ const getStudies = async (req, res) => {
 const addStudies = async (request, response) => {
     // 새로운 스터디를 생성합니다
     var invite_code = uuidv4();
-    const {leader_id,description, title, banner,location,time} = request.body;
-
+    const {leader_id,description, title} = request.body;
     
     try {
-     db.query('INSERT INTO study (invite_code,leader_id,description, title, banner,location,time) VALUES (?,?,?,?,?,?,?)', [invite_code,leader_id,description, title, banner,location,time], function(error, results, fields) {
+    //resources.single(banner);
+    //upload.single(banner); // 서버에 이미지 업로드
+     db.query('INSERT INTO study (invite_code,leader_id,description, title) VALUES (?,?,?,?)', [invite_code,leader_id,description, title], function(error, results, fields) {
             if (error) throw error;
             else {              
-              response.status(200).send(results.invite_code);
+              response.status(200).send(invite_code);
+            
             }           
         });
     } catch (error) {
         response.status(400).send(error.message);
     }
 }
+
 
 
 /** 멤버 목록 조회 */
