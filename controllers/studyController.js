@@ -1,7 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
 var db = require('./../lib/db');
-var multer = require('multer');
-var resources = multer({ dest: '/resources' })
 
 
 
@@ -44,6 +42,24 @@ const addStudies = async (request, response) => {
     }
 }
 
+/** 이미지 업로드 (db, server) */
+//app.post('/banner', upload.single('image'), (req, res, next) => {});
+
+const postBanner = async (req, res) => {
+    console.log(req);
+    try {
+        db.query('UPDATE study set banner=(?) where invite_code = (?)',[req.file.filename,req.body.invite_code], function(error,results,fields) {
+            if (error) throw error;
+            else {
+    
+                res.status(200).send("파일 업로드 완료")
+            }
+        })
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+
+}
 
 
 /** 멤버 목록 조회 */
@@ -156,4 +172,4 @@ const addStudyUser = async (request, response) => {
 
 
 
-module.exports= {getStudies, addStudies, getMembers, addStudyUser, getNotification, sendNotification}
+module.exports= {getStudies, addStudies, getMembers, addStudyUser, getNotification, sendNotification, postBanner}

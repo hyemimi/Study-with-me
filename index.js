@@ -37,7 +37,7 @@ app.use(cors({
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
 
-app.use('resources', express.static('resources')) // 서버 내 이미지 저장을 위함 및 업로드 위함
+app.use('/resources', express.static('resources')) // 서버 내 이미지 저장을 위함 및 업로드 위함
 
 var sessionStore = new mySQLStore({
   host: '127.0.0.1',
@@ -157,25 +157,21 @@ app.use('/study', require("./routes/studyRoutes"));
 
 
 /** 이미지 업로드 (db, server) */
-app.post('/banner', upload.single('image'), (req, res, next) => {
+// app.post('/banner', upload.single('image'), (req, res, next) => {
 
+//   try {
+//     db.query('UPDATE study set banner=(?) where invite_code = (?)',[req.file.filename,req.body.invite_code], function(error,results,fields) {
+//         if (error) throw error;
+//         else {
+
+//             res.status(200).send("파일 업로드 완료")
+//         }
+//     })
+// } catch (error) {
+//     res.status(400).send(error.message);
+// }
   
-console.log(req.body);
-  try {
-    db.query('UPDATE study set banner=(?) where invite_code = (?)',[req.file.filename,req.body.invite_code], function(error,results,fields) {
-        if (error) throw error;
-        else {
-
-            res.status(200).send("파일 업로드 완료")
-        }
-    })
-} catch (error) {
-    res.status(400).send(error.message);
-}
-
-  
-});
-
+// });
 
 
 app.listen(3000)
