@@ -1,19 +1,20 @@
 const { v4: uuidv4 } = require('uuid');
 var db = require('./../lib/db');
 
-
-
-
 /** 유저의 스터디 목록 조회  */
 const getStudies = async (req, res) => {
     // 특정 user의 스터디 리스트들을 불러옵니다
-    var user_id = req.body.user_id;
+    var user_id = req.query.user_id;
+    console.log(req.query.user_id);
+
+    //console.log(req.param["user_id"]);
 
     try {
         db.query('SELECT * FROM STUDY s JOIN (SELECT * FROM MEMBER WHERE user_id = (?)) m ON s.invite_code = m.invite_code',[user_id], function(error,results,fields) {
             if (error) throw error;
             else {
-                res.send(results);
+                res.status(200).send(results);
+                console.log(results);
             }
         })
     } catch (error) {
@@ -34,6 +35,10 @@ const addStudies = async (request, response) => {
             if (error) throw error;
             else {              
               response.status(200).send(invite_code);
+              db.query('INSERT INTO member (invite_code,user_id) VALUES (?,?)', [invite_code,leader_id], function(error, results, fields) {
+                if (error) throw error;
+          
+              })
             
             }           
         });

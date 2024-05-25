@@ -18,7 +18,7 @@ const path = require('path');
 const upload = multer({
     storage: multer.diskStorage({
         destination(req, file, cb) {
-            cb(null, 'resources/banner');
+            cb(null, 'resources/profileImage');
         },
         filename(req, file, cb) {
             const ext = path.extname(file.originalname);
@@ -131,16 +131,20 @@ app.post('/register', function(req,res) {
   var email = req.body.email;
   var name = req.body.name;
   var pwd = req.body.pwd;
-  var route = req.body.route !== null ? `${baseUrl}/resources/${req.body.route}` : `${baseUrl}/resources/user.png`;
+  //var route = req.body.route !== null ? `${baseUrl}/resources/${req.body.route}` : `${baseUrl}/resources/user.png`;
 
   db.query('select * from user where email=?',[email],(err,data)=>{
-    if(data.length == 0){
+    if (data.length == 0){
         console.log('중복된 email 없음, 회원가입 성공');
-        multer({})
-        db.query('insert into user(email, name, pwd, route) values(?,?,?,?)',[
-            email, name, pwd, route
-        ]);
-        res.status(200).send(`${email} 회원가입 성공`)
+        db.query('insert into user(email, name, pwd) values(?,?,?)',[
+            email, name, pwd
+        ],function(error, results, fields) {
+          if (error) throw error;
+          else {
+            res.status(200).send((results.insertId).toString());
+          }
+        });
+        
     }else{
         console.log('회원가입 실패');
         res.status(400).send('회원가입 실패')
@@ -150,7 +154,20 @@ app.post('/register', function(req,res) {
 
 })
 
-
+/** 유저 프로필 이미지 업로드 */
+app.post('/uploadProfile', upload.single('image'), (req,res) => {
+  try {
+    db.query('UPDATE user set route=(?) where user_id = (?)',[req.file.filename,req.body.user_id], function(error,results,fields) {
+       if (error) throw error;
+      else {
+            res.status(200).send("파일 업로드 완료")
+               }
+          })
+  }
+  catch {
+    res.status(400).send(error.message);
+  }
+})
 
 /** Study with me service */
 app.use('/study', require("./routes/studyRoutes"));
