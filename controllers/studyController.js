@@ -37,9 +37,7 @@ const addStudies = async (request, response) => {
               response.status(200).send(invite_code);
               db.query('INSERT INTO member (invite_code,user_id) VALUES (?,?)', [invite_code,leader_id], function(error, results, fields) {
                 if (error) throw error;
-          
               })
-            
             }           
         });
     } catch (error) {
@@ -56,7 +54,6 @@ const postBanner = async (req, res) => {
         db.query('UPDATE study set banner=(?) where invite_code = (?)',[req.file.filename,req.body.invite_code], function(error,results,fields) {
             if (error) throw error;
             else {
-    
                 res.status(200).send("파일 업로드 완료")
             }
         })
@@ -69,7 +66,8 @@ const postBanner = async (req, res) => {
 
 /** 멤버 목록 조회 */
 const getMembers = async (request, response) => {
-    var invite_code = request.body.invite_code;
+    var invite_code = request.query.invite_code;
+    console.log(invite_code);
 
     try {
         db.query('SELECT user_id, email, name, route FROM (member m JOIN study s ON m.invite_code = s.invite_code) NATURAL JOIN user u WHERE s.invite_code= (?)', [invite_code], function(error, results, fields) {
