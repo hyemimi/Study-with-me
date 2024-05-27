@@ -19,13 +19,16 @@ const uploadContent = async (req, res) => {
 
 /** 게시글 불러오기 */
 const getBoard = async (req,res) => {
-    var invite_code = req.body.invite_code;
-
+    var invite_code = req.query.invite_code;
+    
+    
     try {
-        db.query('SELECT * FROM board WHERE invite_code= (?)',[invite_code],function(error,results,fields) {
+        db.query('SELECT title,content,route,board_id,time,name FROM board b JOIN user u ON b.user_id=u.user_id WHERE invite_code= (?)',[invite_code],function(error,results,fields) {
             if (error) throw error;
             else {
+                console.log(results);
                 res.status(200).send(results);
+                
             }
         })
 
