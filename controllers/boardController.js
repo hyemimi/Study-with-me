@@ -4,7 +4,7 @@ var db = require('./../lib/db');
 const uploadContent = async (req, res) => {
     var {invite_code,title,content,user_id} = req.body;
     var time = new Date();
-
+    
     try {
         db.query('insert into board(user_id,invite_code, title,content,time) values(?,?,?,?,?)',[user_id, invite_code,title,content,time], function(error,results,fields) {
             if (error) throw error;
