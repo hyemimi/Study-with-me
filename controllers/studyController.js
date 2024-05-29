@@ -84,11 +84,11 @@ const getMembers = async (request, response) => {
 /** 스터디 유저 추가 요청 (알람 보내기) */
 const sendNotification = async (request, response) => {
     
-    const {user_id, content} = request.body;
+    const {user_id, content,invite_code} = request.body;
 
     
     try {
-     db.query('INSERT INTO notify (user_id, content, isChecked) VALUES (?,?,?)', [user_id,content,false], function(error, results, fields) {
+     db.query('INSERT INTO notify (user_id, content, isChecked,invite_code) VALUES (?,?,?,?)', [user_id,content,false,invite_code], function(error, results, fields) {
             if (error) throw error;
             else {              
               response.status(200).send("알람 송신");
@@ -120,13 +120,14 @@ const sendNotification = async (request, response) => {
 
 /** 알람 조회 */
 const getNotification = async (request, response) => {
-    var user_id = request.body.user_id;
+    var user_id = request.query.user_id;
 
     try {
-        db.query('SELECT * FROM notify WHERE user_id = (?) and isChecked = (?)', [user_id,false], function(error, results, fields) {
+        db.query('SELECT notify_id,content,isChecked,invite_code FROM notify WHERE user_id = (?) and isChecked = (?)', [user_id,false], function(error, results, fields) {
                if (error) throw error;
                if (results.length > 0) {
                 // 알람 존재
+                console.log(results);
                 response.status(200).send(results);
                }
                else {      
