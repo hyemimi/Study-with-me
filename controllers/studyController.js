@@ -1,6 +1,32 @@
 const { v4: uuidv4 } = require('uuid');
 var db = require('./../lib/db');
 
+
+/** 유저 조회 */ 
+const getUser = async (req, res) => {
+    var email = req.query.email;
+
+    try {
+        db.query('SELECT user_id FROM user WHERE email = (?)',[email], function(error,results,fields) {
+            if (error) throw error;
+            if (results.length > 0) {
+                // 유저 정보 있음
+                res.status(200).send(results);
+             }
+            else {
+                res.status(401).send("정보 없음");
+            }
+        })
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+
+}
+
+
+
+
+
 /** 유저의 스터디 목록 조회  */
 const getStudies = async (req, res) => {
     // 특정 user의 스터디 리스트들을 불러옵니다
@@ -84,16 +110,26 @@ const getMembers = async (request, response) => {
 /** 스터디 유저 추가 요청 (알람 보내기) */
 const sendNotification = async (request, response) => {
     
-    const {user_id, content,invite_code} = request.body;
-
+    const {content,invite_code} = request.body;
+    const emailList = request.body.emailList;
     
     try {
-     db.query('INSERT INTO notify (user_id, content, isChecked,invite_code) VALUES (?,?,?,?)', [user_id,content,false,invite_code], function(error, results, fields) {
-            if (error) throw error;
-            else {              
-              response.status(200).send("알람 송신");
-            }           
+        emailList.forEach((element,index) => {
+            db.query('SELECT user_id FROM user WHERE email=(?)',[element], function(err,results,fields) {
+                console.log(results[index]);
+                if (err) throw err;
+                else {
+                    db.query('INSERT INTO notify (user_id, content, isChecked,invite_code) VALUES (?,?,?,?)', [results[index].user_id,content,false,invite_code], function(error, results, fields) {
+                        if (error) throw error;
+                        else {              
+                          response.status(200).send("알람 송신 완료");
+                        }           
+                    });
+                }
+            })
         });
+        
+     
     } catch (error) {
         response.status(400).send(error.message);
     }
@@ -176,4 +212,4 @@ const addStudyUser = async (request, response) => {
 
 
 
-module.exports= {getStudies, addStudies, getMembers, addStudyUser, getNotification, sendNotification, postBanner}
+module.exports= {getUser, getStudies, addStudies, getMembers, addStudyUser, getNotification, sendNotification, postBanner}

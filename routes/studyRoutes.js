@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getStudies, addStudies, getMembers, addStudyUser, getNotification, sendNotification, postBanner } = require("../controllers/studyController");
+const {getUser, getStudies, addStudies, getMembers, addStudyUser, getNotification, sendNotification, postBanner } = require("../controllers/studyController");
 const { uploadContent, getBoard } = require("../controllers/boardController");
 const { registerSchedule, voteSchedule, getSchedule } = require('../controllers/calanderController');
 const multer = require('multer');
@@ -22,6 +22,7 @@ const upload = multer({
 
 
 /** studyController */
+router.route("/getUser").get(getUser); // 유저 정보 확인
 router.route("/getStudies").get(getStudies); // 유저의 스터디 목록들 조회
 router.route("/addStudies").post(addStudies); // 스터디 생성
 router.route("/postBanner").post(upload.single('image'),postBanner); // 스터디 생성

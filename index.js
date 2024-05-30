@@ -114,8 +114,11 @@ app.post('/login', function (request, response) {
 
 /** 로그아웃 */
 app.get('/logout', function (request, response) {
+  console.log(request.session);
+  //var request.query.email = '';
 
   if(request.session.is_logined) {
+
     request.session.destroy(function(err) {
       response.status(200).send('logout');
     });
