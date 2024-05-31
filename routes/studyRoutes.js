@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {getUser, getStudies, addStudies, getMembers, addStudyUser, getNotification, sendNotification, postBanner } = require("../controllers/studyController");
 const { uploadContent, getBoard } = require("../controllers/boardController");
-const { registerSchedule, voteSchedule, getSchedule } = require('../controllers/calanderController');
+const { registerSchedule, voteSchedule, getSchedule, getCompletedMembers, terminateVote } = require('../controllers/calanderController');
 const multer = require('multer');
 const path = require('path');
 
@@ -37,6 +37,8 @@ router.route("/getBoard").get(getBoard); // 게시글 조회
 router.route("/registerSchedule").post(registerSchedule);
 router.route("/voteSchedule").post(voteSchedule);
 router.route("/getSchedule").get(getSchedule);
+router.route("/getCompletedMembers").get(getCompletedMembers);
+router.route("/terminateVote").post(terminateVote); // 투표 종료
 
 module.exports = router;
 

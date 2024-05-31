@@ -25,7 +25,59 @@ const registerSchedule = async (request, response) => {
 
 /** 스터디 장이 일정 투표를 종료합니다 (장소, 시간 픽스), study table의 time, location update */
 // ++ schedule 테이블의 일정들 지우기...
+const terminateVote = async (request, response) => {
+    
+    const {invite_code} = request.body; 
+    // select count(course_id) as max
+    // from takes
+    // group by course_id
+    // order by max desc
+    // limit 1;
+    // 출처: https://cloudysky.tistory.com/52 [TalkPlayLove:티스토리]
+    try {
+        db.query('SELECT invite_code, location, count(time) as max, time, during FROM schedule GROUP BY time  having invite_code = (?) ORDER BY max desc limit 1 ', [invite_code], function(error, results, fields) {
+            if (error) throw error;
+            else {
+                db.query('Update study SET location=? , during =?  ,time =? WHERE invite_code=?',[results[0].location,results[0].during,results[0].time,results[0].invite_code],function(err, result, fields) {
+                    if (err) throw err;
+                    else {
+                        db.query('DELETE FROM schedule WHERE invite_code = (?)',[results[0].invite_code], function(e,res,fields) {
+                            if (e) throw e;
+                            response.status(200).send(results);
+                        })
+                       
+                    }
+                })              
+              
+            }           
+        });
+    } catch (error) {
+        response.status(400).send(error.message);
+    }
+}
 
+
+
+/** 투표한 유저를 조회합니다*/
+const getCompletedMembers = async (request, response) => {
+    var invite_code = request.query.invite_code;
+
+    try {
+        db.query('SELECT count(distinct u.user_id) as "cnt" FROM (SELECT * FROM schedule WHERE invite_code = ?) s JOIN user u ON s.user_id = u.user_id', [invite_code], function(error, results, fields) {
+               if (error) throw error;
+               if (results.length > 0) {
+                // 투표한 사람들 존재
+                response.status(200).send(results);
+               }
+               else {      
+                // 투표한 사람 없음     
+                 response.status(401).send("투표한 사람이 없습니다");
+               }           
+           });
+       } catch (error) {
+           response.status(400).send(error.message);
+       }
+}
 
 
 /** 일정 투표 리스트를 조회합니다 */
@@ -84,5 +136,5 @@ const voteSchedule = async (request, response) => {
 
 
 
-module.exports = {registerSchedule,voteSchedule, getSchedule}
+module.exports = {registerSchedule,voteSchedule, getSchedule, getCompletedMembers, terminateVote}
 
