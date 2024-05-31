@@ -11,7 +11,16 @@ const getUser = async (req, res) => {
             if (error) throw error;
             if (results.length > 0) {
                 // 유저 정보 있음
-                res.status(200).send(results);
+                db.query('SELECT * FROM member WHERE user_id=(?)',[results.user_id],function(error,result, fields) {
+                    if (error) throw error;
+                    if (result.length > 0) {
+                        response.status(401).send("이미 가입된 유저입니다");
+                    }
+                    else {
+                        // 유저 정보 있고, 가입된 유저가 아님
+                        res.status(200).send(results);
+                    }
+                })
              }
             else {
                 res.status(401).send("정보 없음");
@@ -119,14 +128,17 @@ const sendNotification = async (request, response) => {
                 console.log(results[index]);
                 if (err) throw err;
                 else {
-                    db.query('INSERT INTO notify (user_id, content, isChecked,invite_code) VALUES (?,?,?,?)', [results[index].user_id,content,false,invite_code], function(error, results, fields) {
-                        if (error) throw error;
-                        else {              
-                          response.status(200).send("알람 송신 완료");
-                        }           
-                    });
+                       
+                            db.query('INSERT INTO notify (user_id, content, isChecked,invite_code) VALUES (?,?,?,?)', [results[index].user_id,content,false,invite_code], function(error, results, fields) {
+                                if (error) throw error;
+                                else {              
+                                  response.status(200).send("알람 송신 완료");
+                                }           
+                            });
+                        
+                    } 
                 }
-            })
+            )
         });
         
      
