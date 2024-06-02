@@ -134,7 +134,27 @@ const voteSchedule = async (request, response) => {
     }
 }
 
+/** 유저의 스터디 일정들을 조회합니다 */
+const getAllSchedule = async (request, response) => {
+    var {user_id} = request.query;
+
+    try {
+        db.query('SELECT s.time, s.during, s.location FROM (SELECT * FROM studydb.member WHERE user_id = ?) m JOIN studydb.study s ON s.invite_code = m.invite_code where s.time IS NOT NULL', [user_id], function(error, results, fields) {
+               if (error) throw error;
+               if (results.length > 0) {
+                // 스케줄 존재
+                response.status(200).send(results);
+               }
+               else {      
+                // 등록된 스케줄 없음        
+                 response.status(401).send("등록된 일정이 없습니다.");
+               }           
+           });
+       } catch (error) {
+           response.status(400).send(error.message);
+       }
+}
 
 
-module.exports = {registerSchedule,voteSchedule, getSchedule, getCompletedMembers, terminateVote}
+module.exports = {registerSchedule,voteSchedule, getSchedule, getCompletedMembers, terminateVote, getAllSchedule}
 
