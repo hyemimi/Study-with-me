@@ -139,11 +139,13 @@ const getAllSchedule = async (request, response) => {
     var {user_id} = request.query;
 
     try {
-        db.query('SELECT s.time, s.during, s.location FROM (SELECT * FROM studydb.member WHERE user_id = ?) m JOIN studydb.study s ON s.invite_code = m.invite_code where s.time IS NOT NULL', [user_id], function(error, results, fields) {
+        db.query('SELECT s.time, s.during, s.location, s.title FROM (SELECT * FROM studydb.member WHERE user_id = ?) m JOIN studydb.study s ON s.invite_code = m.invite_code where s.time IS NOT NULL', [user_id], function(error, results, fields) {
                if (error) throw error;
                if (results.length > 0) {
                 // 스케줄 존재
+                console.log(results);
                 response.status(200).send(results);
+        
                }
                else {      
                 // 등록된 스케줄 없음        
