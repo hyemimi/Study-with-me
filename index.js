@@ -83,7 +83,7 @@ app.use(session({
 app.post('/login', function (request, response) {
   var email = request.body.email;
   var pwd = request.body.pwd;
-  console.log(email, pwd);
+  console.log(request.body);
 
   if (email && pwd) {             // id와 pw가 입력되었는지 확인
       
@@ -94,6 +94,12 @@ app.post('/login', function (request, response) {
               request.session.is_logined = true;      // 세션 정보 갱신
               request.session.email = email;
               request.session.save(function () {
+                console.log({
+                  email: results[0].email,
+                  route: results[0].route,
+                  name: results[0].name,
+                  user_id: results[0].user_id
+                })
                   response.status(200).send({
                     email: results[0].email,
                     route: results[0].route,

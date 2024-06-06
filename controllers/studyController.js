@@ -23,7 +23,7 @@ const getUser = async (req, res) => {
                 })
              }
             else {
-                res.status(401).send("정보 없음");
+                res.status(402).send("정보 없음");
             }
         })
     } catch (error) {
@@ -31,8 +31,6 @@ const getUser = async (req, res) => {
     }
 
 }
-
-
 
 
 

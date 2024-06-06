@@ -7,17 +7,22 @@ const registerSchedule = async (request, response) => {
     const {invite_code, during, location} = request.body; // invite_code, time, during, location 들어가 있음
     var selectedDateTimes = request.body.selectedDateTimes; // 배열로 받기.
 
+    console.log("registerSchedule, request", request.body);
+    
+
     try {
          // 그리고 반복문으로 insert query\
-     selectedDateTimes.forEach(time => {
-        db.query('INSERT INTO schedule (invite_code,time, during, location) VALUES (?,?,?,?)', [invite_code,time,during,location], function(error, results, fields) {
+     selectedDateTimes.forEach(ele => {
+        db.query('INSERT INTO schedule (invite_code,time, during, location) VALUES (?,?,?,?)', [invite_code,ele,during,location], function(error, results, fields) {
             if (error) throw error;
-            else {              
+            else {           
+                console.log('스케줄 등록 registerSchedule',ele);
               //response.status(200).send("스케줄 등록 성공");
             }           
         });
-     })
-     response.status(200).send("스케줄 등록 성공");
+     }
+    )
+     response.status(200).send("스케줄 등록 성공");   
     } catch (error) {
         response.status(400).send(error.message);
     }
@@ -29,8 +34,7 @@ const terminateVote = async (request, response) => {
     
     const {invite_code} = request.body; 
     // select count(course_id) as max
-    // from takes
-    // group by course_id
+    // from takes`
     // order by max desc
     // limit 1;
     // 출처: https://cloudysky.tistory.com/52 [TalkPlayLove:티스토리]
@@ -38,14 +42,13 @@ const terminateVote = async (request, response) => {
         db.query('SELECT invite_code, location, count(time) as max, time, during FROM schedule GROUP BY time  having invite_code = (?) ORDER BY max desc limit 1 ', [invite_code], function(error, results, fields) {
             if (error) throw error;
             else {
-                db.query('Update study SET location=? , during =?  ,time =? WHERE invite_code=?',[results[0].location,results[0].during,results[0].time,results[0].invite_code],function(err, result, fields) {
+                db.query('Update study SET location=?, during =?, time =? WHERE invite_code=?',[results[0].location,results[0].during,results[0].time,results[0].invite_code],function(err, result, fields) {
                     if (err) throw err;
                     else {
                         db.query('DELETE FROM schedule WHERE invite_code = (?)',[results[0].invite_code], function(e,res,fields) {
                             if (e) throw e;
                             response.status(200).send(results);
                         })
-                       
                     }
                 })              
               
@@ -86,9 +89,11 @@ const getSchedule = async (request, response) => {
 
     try {
         db.query('SELECT * FROM schedule WHERE invite_code = (?) and user_id is NULL', [invite_code], function(error, results, fields) {
-               if (error) throw error;
+               
+            if (error) throw error;
                if (results.length > 0) {
                 // 스케줄 존재
+                console.log("getSchedule",results)
                 response.status(200).send(results);
                }
                else {      
@@ -143,7 +148,7 @@ const getAllSchedule = async (request, response) => {
                if (error) throw error;
                if (results.length > 0) {
                 // 스케줄 존재
-                console.log(results);
+                console.log("getAllSchedule",results);
                 response.status(200).send(results);
         
                }
