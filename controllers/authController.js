@@ -14,6 +14,10 @@ try {
                  // db에서의 반환값이 있으면 로그인 성공
                 request.session.is_logined = true;      // 세션 정보 갱신
                 request.session.email = email;
+                request.session.route = results[0].route;
+                request.session.name = results[0].name;
+                request.session.user_id = results[0].user_id;
+
                 request.session.save(function () {
                   console.log({
                     email: results[0].email,
@@ -44,22 +48,45 @@ catch (error) {
 }
 
 }
- 
+
+const authCheck = async (request, response) => {
+
+  //var email = request.query.email;
+
+  try {
+    db.query('SELECT * FROM sessions WHERE is_logined = (?)', [true], function(error, results, fields) {
+      if (error) throw error;
+      if (results.length > 0) {
+        response.status(200).send({
+          isLogin : 'true',
+          email: request.session.email,
+          route: request.session.route,
+          name: request.session.name,
+          user_id: request.session.user_id
+        })
+      }
+      else {
+        response.status(200).send({isLogin: 'false'});
+      }
+    })
+  }
+  catch (error) {
+    response.status(400).send(error.message);
+  }
+}
 
 /** 유저 로그아웃 */
 const logout = async (request, response) => {
-
-  if(request.session.is_logined) {
-
+  var email = request.body.email;
+  //json_extract(profile, '$.age')
+  db.query(`DELETE FROM sessions WHERE JSON_EXTRACT(data, '$.email')=?`,[email],function(error,results,fields) {
+    if (error) throw error;
     request.session.destroy(function(err) {
       response.status(200).send('logout');
-    });
-  }
-  else {
-    response.status(400).send('잘못된 접근입니다');
-  }
+  })
  
-};
+});
+}
 
 /** 유저 프로필 이미지 업로드 */
 const uploadProfile = async (req,res) => {
@@ -104,4 +131,4 @@ const register = async (req, res) => {
 });
 }
 
-  module.exports = {login, logout, register, uploadProfile}
+  module.exports = {login, logout, register, uploadProfile, authCheck}

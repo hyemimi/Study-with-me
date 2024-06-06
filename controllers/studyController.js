@@ -121,7 +121,6 @@ const sendNotification = async (request, response) => {
     try {
         emailList.forEach((element,index) => {
             db.query('SELECT user_id FROM user WHERE email=(?)',[element], function(err,results,fields) {
-                console.log(results[index]);
                 if (err) throw err;
                 else {
                        
@@ -142,24 +141,6 @@ const sendNotification = async (request, response) => {
         response.status(400).send(error.message);
     }
 }
-
-/** 스터디 가입 요청 수락 */
-/* const joinStudy = async (request, response) => {
-    const {user_id, notify_id, content} = request.body;
-     
-    try {
-        db.query('UPDATE notify SET isChecked=(?) WHERE notify_id = (?)', [true, notify_id], function(error, results, fields) {
-               if (error) throw error;
-               else {              
-                 response.status(200).send("알람 송신");
-               }           
-           });
-       } catch (error) {
-           response.status(400).send(error.message);
-       }
-
-} */
-
 
 
 /** 알람 조회 */

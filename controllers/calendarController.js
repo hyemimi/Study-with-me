@@ -9,11 +9,10 @@ const registerSchedule = async (request, response) => {
 
     try {
          // 반복문으로 insert query
-     selectedDateTimes.forEach(ele => {
-        db.query('INSERT INTO schedule (invite_code,time, during, location) VALUES (?,?,?,?)', [invite_code,ele,during,location], function(error, results, fields) {
+     selectedDateTimes.forEach(dateTime => {
+        db.query('INSERT INTO schedule (invite_code,time, during, location) VALUES (?,?,?,?)', [invite_code,dateTime,during,location], function(error, results, fields) {
             if (error) throw error;
             else {           
-                console.log('스케줄 등록 registerSchedule',ele);
             }           
         });
      }
@@ -37,6 +36,7 @@ const terminateVote = async (request, response) => {
                     else {
                         db.query('DELETE FROM schedule WHERE invite_code = (?)',[results[0].invite_code], function(e,res,fields) {
                             if (e) throw e;
+                            console.log("terminateVote",results);
                             response.status(200).send(results);
                         })
                     }
@@ -99,7 +99,7 @@ const getSchedule = async (request, response) => {
 /** 유저가 희망하는 스터디 일정을 등록합니다  */
 const voteSchedule = async (request, response) => {
     
-    const {user_id,invite_code,during, location} = request.body;
+    const {user_id} = request.body;
     const checkedSchedule = request.body.checkedSchedule;
 
 
