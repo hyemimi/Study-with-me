@@ -1,4 +1,4 @@
-var db = require('./../lib/db');
+var db = require('../lib/db');
 
 
 /** 스터디 장이 스터디 일정 및 장소를 등록합니다 */
@@ -7,17 +7,13 @@ const registerSchedule = async (request, response) => {
     const {invite_code, during, location} = request.body; // invite_code, time, during, location 들어가 있음
     var selectedDateTimes = request.body.selectedDateTimes; // 배열로 받기.
 
-    console.log("registerSchedule, request", request.body);
-    
-
     try {
-         // 그리고 반복문으로 insert query\
+         // 반복문으로 insert query
      selectedDateTimes.forEach(ele => {
         db.query('INSERT INTO schedule (invite_code,time, during, location) VALUES (?,?,?,?)', [invite_code,ele,during,location], function(error, results, fields) {
             if (error) throw error;
             else {           
                 console.log('스케줄 등록 registerSchedule',ele);
-              //response.status(200).send("스케줄 등록 성공");
             }           
         });
      }
@@ -29,15 +25,9 @@ const registerSchedule = async (request, response) => {
 }
 
 /** 스터디 장이 일정 투표를 종료합니다 (장소, 시간 픽스), study table의 time, location update */
-// ++ schedule 테이블의 일정들 지우기...
 const terminateVote = async (request, response) => {
     
     const {invite_code} = request.body; 
-    // select count(course_id) as max
-    // from takes`
-    // order by max desc
-    // limit 1;
-    // 출처: https://cloudysky.tistory.com/52 [TalkPlayLove:티스토리]
     try {
         db.query('SELECT invite_code, location, count(time) as max, time, during FROM schedule GROUP BY time  having invite_code = (?) ORDER BY max desc limit 1 ', [invite_code], function(error, results, fields) {
             if (error) throw error;
@@ -112,7 +102,6 @@ const voteSchedule = async (request, response) => {
     const {user_id,invite_code,during, location} = request.body;
     const checkedSchedule = request.body.checkedSchedule;
 
-    console.log(checkedSchedule);
 
     try {
         db.query('SELECT * FROM schedule WHERE user_id=(?)',[user_id], function(error, results, fields) {

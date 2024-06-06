@@ -38,7 +38,6 @@ const getUser = async (req, res) => {
 const getStudies = async (req, res) => {
     // 특정 user의 스터디 리스트들을 불러옵니다
     var user_id = req.query.user_id;
-    console.log(req.query.user_id);
 
     //console.log(req.param["user_id"]);
 
@@ -82,7 +81,7 @@ const addStudies = async (request, response) => {
 //app.post('/banner', upload.single('image'), (req, res, next) => {});
 
 const postBanner = async (req, res) => {
-    console.log(req);
+  
     try {
         db.query('UPDATE study set banner=(?) where invite_code = (?)',[req.file.filename,req.body.invite_code], function(error,results,fields) {
             if (error) throw error;
@@ -100,7 +99,6 @@ const postBanner = async (req, res) => {
 /** 멤버 목록 조회 */
 const getMembers = async (request, response) => {
     var invite_code = request.query.invite_code;
-    console.log(invite_code);
 
     try {
         db.query('SELECT user_id, email, name, route FROM (member m JOIN study s ON m.invite_code = s.invite_code) NATURAL JOIN user u WHERE s.invite_code= (?)', [invite_code], function(error, results, fields) {
