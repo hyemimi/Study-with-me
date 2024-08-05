@@ -1,2 +1,5 @@
 # Study-with-me
-[풀스택서비스프로그래밍] server repository 입니다
+**node.js server & MySQL server**
+
+**🖐️Front Repository & project description
+https://github.com/hyemimi/study_with_me**
